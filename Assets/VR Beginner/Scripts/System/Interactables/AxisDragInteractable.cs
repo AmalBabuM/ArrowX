@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -38,7 +39,7 @@ public class AxisDragInteractable : UnityEngine.XR.Interaction.Toolkit.Interacta
     Vector3 m_GrabbedOffset;
     float m_CurrentDistance;
     int m_CurrentStep;
-    UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor m_GrabbingInteractor;
+    IXRSelectInteractor m_GrabbingInteractor;
 
     float m_StepLength;
     
@@ -140,17 +141,18 @@ public class AxisDragInteractable : UnityEngine.XR.Interaction.Toolkit.Interacta
         }
     }
 
-    protected override void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectEntering(SelectEnterEventArgs args)
     {
-        base.OnSelectEnter(interactor);
+        var interactor = args.interactorObject;
+        base.OnSelectEntering(args);
 
         m_GrabbedOffset = interactor.transform.position - transform.position;
         m_GrabbingInteractor = interactor;
     }
 
-    protected override void OnSelectExit(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectExiting(SelectExitEventArgs args)
     {
-        base.OnSelectExit(interactor);
+        base.OnSelectExiting(args);
 
         if (SnapOnlyOnRelease && Steps != 0)
         {

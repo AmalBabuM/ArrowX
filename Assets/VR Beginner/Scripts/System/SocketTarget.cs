@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.Events;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 
 /// <summary>
@@ -13,14 +15,14 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class SocketTarget : MonoBehaviour
 {
     public string SocketType;
-    public XRInteractableEvent SocketedEvent;
+    public UnityEvent<XRBaseInteractor> SocketedEvent;
     public bool DisableSocketOnSocketed;
     
     void Awake()
     {
         var interactable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable>();
 
-        interactable.onSelectEntered.AddListener(SelectedSwitch);
+        interactable.selectEntered.AddListener(args => SelectedSwitch(args.interactorObject as XRBaseInteractor));
     }
 
     public void SelectedSwitch(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)

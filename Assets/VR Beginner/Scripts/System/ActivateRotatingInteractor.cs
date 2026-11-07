@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 
@@ -11,7 +11,7 @@ public class ActivateRotatingInteractor : MonoBehaviour
     void Start()
     {
         m_Interactor = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
-        m_Interactor.onSelectEntered.AddListener(Activated);
+        m_Interactor.selectEntered.AddListener(args => Activated(args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable));
     }
 
     void Activated(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
@@ -19,6 +19,6 @@ public class ActivateRotatingInteractor : MonoBehaviour
         DialToActivate.RotatingRigidbody = interactable.GetComponentInChildren<Rigidbody>();
         DialToActivate.gameObject.SetActive(true);
 
-        interactable.interactionLayerMask = 0;
+        interactable.interactionLayers = 0;
     }
 }

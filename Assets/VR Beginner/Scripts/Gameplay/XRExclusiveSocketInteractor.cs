@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
 
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+
 /// <summary>
 /// Subclass of the classic Socket Interactor from the Interaction toolkit that will only accept object with the right
 /// SocketTarget 
@@ -9,18 +11,19 @@ public class XRExclusiveSocketInteractor : UnityEngine.XR.Interaction.Toolkit.In
 {
     public string AcceptedType;
 
-    public override bool CanSelect(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
+    public override bool CanSelect(IXRSelectInteractable interactable)
     {
-        SocketTarget socketTarget = interactable.GetComponent<SocketTarget>();
-
-        if (socketTarget == null)
-            return false;
-
-        return base.CanSelect(interactable) && (socketTarget.SocketType == AcceptedType);
+        return base.CanSelect(interactable) && MatchesSocketType(interactable);
     }
 
-    public override bool CanHover(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
+    public override bool CanHover(IXRHoverInteractable interactable)
     {
-        return CanSelect(interactable);
+        return base.CanHover(interactable) && MatchesSocketType(interactable);
+    }
+
+    private bool MatchesSocketType(IXRInteractable interactable)
+    {
+        return interactable.transform.TryGetComponent(out SocketTarget target) &&
+            target.SocketType == AcceptedType;
     }
 }

@@ -141,21 +141,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 4294967295
   m_AttachTransform: {fileID: 8149034572341622026}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_ShowInteractableHoverMeshes: 1

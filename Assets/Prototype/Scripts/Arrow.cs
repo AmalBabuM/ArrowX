@@ -68,6 +68,7 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
     public void Release(float value)
     {
         inAir = true;
+        throwOnDetach = false;
         SetPhysics(true);
         MaskAndFire(value);
         StartCoroutine(RotateWithVelocity());
@@ -87,7 +88,7 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
     private void MaskAndFire(float power)
     {
         colliders[0].enabled = false;
-        interactionLayerMask = 1 << LayerMask.NameToLayer("Ignore");
+        interactionLayers = 0;
         Vector3 force = transform.forward * power * speed;
         rb.AddForce(force, ForceMode.Impulse);
     }
@@ -102,23 +103,10 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
         }
     }
 
-    public void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    public void ArrowHaptic(HoverEnterEventArgs args)
     {
-        base.OnSelectEnter(interactor);
-    }
-
-    public new void OnSelectExit(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
-    {
-        base.OnSelectExit(interactor);
-    }
-
-    public void ArrowHaptic(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
-    {
-        if (interactor is HandInteractor hand)
-        {
-            if (hand.TryGetComponent(out XRController controller))
-                HapticManager.Impulse(.7f, .05f, controller.inputDevice);
-        }
+        if (args.interactorObject is HandInteractor hand)
+            hand.SendHapticImpulse(.7f, .05f);
     }
 
     void ArrowParticles(bool release)

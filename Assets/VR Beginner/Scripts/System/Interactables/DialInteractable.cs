@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -48,7 +49,7 @@ public class DialInteractable : UnityEngine.XR.Interaction.Toolkit.Interactables
     public float CurrentAngle => m_CurrentAngle;
     public int CurrentStep => m_CurrentStep;
     
-    UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor m_GrabbingInteractor;
+    IXRSelectInteractor m_GrabbingInteractor;
     Quaternion m_GrabbedRotation;
     
     Vector3 m_StartingWorldAxis;
@@ -176,8 +177,9 @@ public class DialInteractable : UnityEngine.XR.Interaction.Toolkit.Interactables
         }
     }
 
-    protected override void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectEntering(SelectEnterEventArgs args)
     {
+        var interactor = args.interactorObject;
         m_GrabbedRotation = interactor.transform.rotation;
         m_GrabbingInteractor = interactor;
 
@@ -196,12 +198,12 @@ public class DialInteractable : UnityEngine.XR.Interaction.Toolkit.Interactables
             m_SyncTransform.position = transform.position;
         }
         
-        base.OnSelectEnter(interactor);
+        base.OnSelectEntering(args);
     }
 
-    protected override void OnSelectExit(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectExiting(SelectExitEventArgs args)
     {
-        base.OnSelectExit(interactor);
+        base.OnSelectExiting(args);
         
         if (SnapOnRelease && Steps > 0)
         {
@@ -248,10 +250,10 @@ public class DialInteractable : UnityEngine.XR.Interaction.Toolkit.Interactables
         Destroy(m_SyncTransform.gameObject);
     }
     
-    public override bool IsSelectableBy(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    public override bool IsSelectableBy(IXRSelectInteractor interactor)
     {
-        int interactorLayerMask = 1 << interactor.gameObject.layer;
-        return base.IsSelectableBy(interactor) && (interactionLayerMask.value & interactorLayerMask) != 0 ;
+        int interactorLayerMask = 1 << interactor.transform.gameObject.layer;
+        return base.IsSelectableBy(interactor) && (interactionLayers.value & interactorLayerMask) != 0;
     }
 
     #if UNITY_EDITOR

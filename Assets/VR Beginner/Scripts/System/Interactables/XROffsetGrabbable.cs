@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 
 /// <summary>
@@ -18,7 +20,7 @@ public class XROffsetGrabbable : UnityEngine.XR.Interaction.Toolkit.Interactable
     }
     
     
-    Dictionary<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor, SavedTransform> m_SavedTransforms = new Dictionary<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor, SavedTransform>();
+    Dictionary<XRDirectInteractor, SavedTransform> m_SavedTransforms = new Dictionary<XRDirectInteractor, SavedTransform>();
 
     Rigidbody m_Rb;
 
@@ -30,9 +32,9 @@ public class XROffsetGrabbable : UnityEngine.XR.Interaction.Toolkit.Interactable
         m_Rb = GetComponent<Rigidbody>();
     }
 
-    protected override void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectEntering(SelectEnterEventArgs args)
     {
-        if (interactor is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor)
+        if (args.interactorObject is XRDirectInteractor interactor)
         {
             SavedTransform savedTransform = new SavedTransform();
             
@@ -48,12 +50,12 @@ public class XROffsetGrabbable : UnityEngine.XR.Interaction.Toolkit.Interactable
             interactor.attachTransform.rotation = haveAttach ? attachTransform.rotation : m_Rb.rotation;
         }
 
-        base.OnSelectEnter(interactor);
+        base.OnSelectEntering(args);
     }
 
-    protected override void OnSelectExit(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectExiting(SelectExitEventArgs args)
     {
-        if (interactor is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor)
+        if (args.interactorObject is XRDirectInteractor interactor)
         {
             SavedTransform savedTransform = null;
             if (m_SavedTransforms.TryGetValue(interactor, out savedTransform))
@@ -65,12 +67,12 @@ public class XROffsetGrabbable : UnityEngine.XR.Interaction.Toolkit.Interactable
             }
         }
         
-        base.OnSelectExit(interactor);
+        base.OnSelectExiting(args);
     }
 
-    public override bool IsSelectableBy(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    public override bool IsSelectableBy(IXRSelectInteractor interactor)
     {
-        int interactorLayerMask = 1 << interactor.gameObject.layer;
-        return base.IsSelectableBy(interactor) && (interactionLayerMask.value & interactorLayerMask) != 0 ;
+        int interactorLayerMask = 1 << interactor.transform.gameObject.layer;
+        return base.IsSelectableBy(interactor) && (interactionLayers.value & interactorLayerMask) != 0;
     }
 }

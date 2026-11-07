@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
@@ -15,7 +15,7 @@ public class TriggerAnimationEvent : MonoBehaviour
     {
         m_TriggerID = Animator.StringToHash(TriggerName);
         var interactor = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor>();
-        interactor.onSelectEntered.AddListener(TriggerAnim);
+        interactor.selectEntered.AddListener(args => TriggerAnim(args.interactableObject as UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable));
     }
 
     public void TriggerAnim(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
@@ -27,6 +27,6 @@ public class TriggerAnimationEvent : MonoBehaviour
             animator.SetTrigger(TriggerName);
         }
 
-        interactable.interactionLayerMask &= ~(1<<LayerMask.NameToLayer("Hands"));
+        interactable.interactionLayers &= ~(1<<LayerMask.NameToLayer("Hands"));
     }
 }

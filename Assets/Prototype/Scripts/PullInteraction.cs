@@ -1,15 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable
 {
     private Bow bow;
     public float PullAmount { get; private set; } = 0.0f;
     public Transform start, end;
-    private UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor pullingInteractor = null;
-    private float PullAmountTemp;
+    private IXRSelectInteractor pullingInteractor;
 
     [Header("Polish")]
     public LineRenderer stringLine;
@@ -24,23 +25,16 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
         base.Awake();
         bow = GetComponentInParent<Bow>();
     }
-    public void ForceInteract(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
-        OnSelectEnter(interactor);
+        pullingInteractor = args.interactorObject;
+        base.OnSelectEntered(args);
+        if (pullingInteractor is XRBaseInputInteractor inputInteractor)
+            inputInteractor.SendHapticImpulse(.5f, .05f);
     }
-    protected override void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    protected override void OnSelectExited(SelectExitEventArgs args)
     {
-        base.OnSelectEnter(interactor);
-        pullingInteractor = interactor;
-
-        //haptic
-        if(pullingInteractor.TryGetComponent(out XRController controller))
-            HapticManager.Impulse(.5f, .05f, controller.inputDevice);
-
-    }
-    protected override void OnSelectExit(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
-    {
-        base.OnSelectExit(interactor);
+        base.OnSelectExited(args);
         pullingInteractor = null;
         PullAmount = 0f;
 
@@ -53,14 +47,14 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
         base.ProcessInteractable(updatePhase);
         if (updatePhase == XRInteractionUpdateOrder.UpdatePhase.Dynamic)
         {
-            if (isSelected)
+            if (pullingInteractor != null)
             {
                 Vector3 pullPosition = pullingInteractor.transform.position;
                 PullAmount = CalculatePull(pullPosition);
 
                 //haptic
-                if (pullingInteractor.TryGetComponent(out XRController controller) && PullAmount > .3f)
-                    HapticManager.Impulse(PullAmount/5f, .05f, controller.inputDevice);
+                if (PullAmount > .3f && pullingInteractor is XRBaseInputInteractor inputInteractor)
+                    inputInteractor.SendHapticImpulse(PullAmount / 5f, .05f);
 
                 //polish
                 stringLine.material.SetColor("_EmissionColor", 
@@ -83,11 +77,11 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
     {
         if (show)
         {
-            if (showHandsOnPull && bow.selectingInteractor.TryGetComponent(out XRController controller))
+            var controller = bow.firstInteractorSelecting?.transform.GetComponentInParent<XRController>();
+            if (showHandsOnPull && controller != null)
             {
-                //print(controller.inputDevice.role == UnityEngine.XR.InputDeviceRole.RightHanded);
-                leftHand.SetActive(controller.inputDevice.role == UnityEngine.XR.InputDeviceRole.RightHanded);
-                rightHand.SetActive(controller.inputDevice.role == UnityEngine.XR.InputDeviceRole.LeftHanded);
+                leftHand.SetActive(controller.controllerNode == XRNode.RightHand);
+                rightHand.SetActive(controller.controllerNode == XRNode.LeftHand);
             }
         }
         else

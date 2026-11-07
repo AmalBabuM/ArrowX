@@ -1,67 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 /// <summary>
-/// This is a special type of XRController that use some reflection to circumvent a current limitation of the
-/// XRController that don't allow to trigger a select from another script (useful so that the MasterScript can trigger
-/// a select on the front push of the thumbstick to teleport)
+/// Supplies a one-frame select input to the teleport ray when the thumbstick is released.
 /// </summary>
 public class XRReleaseController : XRController
 {
     bool m_Selected;
 
-    FieldInfo m_SelectionStateFieldInfo;
-    
-    FieldInfo m_SelectionStateActivatedThisFrameInfo;
-    FieldInfo m_SelectionStateDectivatedThisFrameInfo;
-    FieldInfo m_SelectionStateActiveInfo;
-
-    bool m_Active = false;
-
     protected override void OnEnable()
     {
+        enableInputActions = true;
         base.OnEnable();
-
-        var interactionStateType = typeof(XRController).Assembly.GetType("UnityEngine.XR.Interaction.Toolkit.XRController+InteractionState");
-        
-        m_SelectionStateActivatedThisFrameInfo = interactionStateType.GetField("activatedThisFrame");
-        m_SelectionStateDectivatedThisFrameInfo = interactionStateType.GetField("deActivatedThisFrame");
-        m_SelectionStateActiveInfo = interactionStateType.GetField("active");
-        
-        m_SelectionStateFieldInfo = typeof(XRController).GetField("m_SelectInteractionState", BindingFlags.Instance | BindingFlags.NonPublic);
     }
 
-    protected void LateUpdate()
+    protected override void UpdateInput(XRControllerState controllerState)
     {
-        object o;
-        o = m_SelectionStateFieldInfo.GetValue(this);
-
-        if(m_Selected)
-        {
-            if (!m_Active)
-            {
-                m_SelectionStateActivatedThisFrameInfo.SetValue(o, true);
-                m_SelectionStateActiveInfo.SetValue(o, true);
-                m_Active = true;
-                
-                m_SelectionStateFieldInfo.SetValue(this, o);
-            }
-        }
-        else
-        {
-            if (m_Active)
-            {
-                m_SelectionStateDectivatedThisFrameInfo.SetValue(o, true);
-                m_SelectionStateActiveInfo.SetValue(o, false);
-                m_Active = false;
-                
-                m_SelectionStateFieldInfo.SetValue(this, o);
-            }
-        }
-        
+        controllerState.selectInteractionState.SetFrameState(m_Selected);
         m_Selected = false;
     }
 

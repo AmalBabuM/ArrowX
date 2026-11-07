@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 
 public class Notch : UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor
@@ -19,64 +22,60 @@ public class Notch : UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInte
     protected override void OnEnable()
     {
         base.OnEnable();
-        pullInteraction.onSelectExited.AddListener(TryToReleaseArrow);
+        pullInteraction.selectExited.AddListener(TryToReleaseArrow);
     }
 
     protected override void OnDisable()
     {
+        pullInteraction.selectExited.RemoveListener(TryToReleaseArrow);
         base.OnDisable();
-        pullInteraction.onSelectExited.AddListener(TryToReleaseArrow);
     }
 
-    protected override void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
+    protected override void OnHoverEntered(HoverEnterEventArgs args)
     {
-        base.OnSelectEnter(interactable);
-        StoreArrow(interactable);
-    }
-
-    protected override void OnHoverEnter(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
-    {
-        if(interactable is Arrow arrow && arrow.selectingInteractor is HandInteractor hand)
+        base.OnHoverEntered(args);
+        if (!hasSelection && !pullInteraction.isSelected && args.interactableObject is Arrow arrow &&
+            arrow.firstInteractorSelecting is HandInteractor hand)
         {
-            arrow.OnSelectExit(hand);
-            hand.ForceDeinteract(arrow);
-            pullInteraction.ForceInteract(hand);
-            hand.ForceInteract(pullInteraction);
+            args.manager.SelectExit((IXRSelectInteractor)hand, arrow);
+            args.manager.SelectEnter((IXRSelectInteractor)this, arrow);
+            args.manager.SelectEnter((IXRSelectInteractor)hand, pullInteraction);
 
             NotchSounds(attatchClip, 3, 3.3f, 5);
         }
     }
 
-    private void StoreArrow(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
+    public override bool CanHover(IXRHoverInteractable interactable)
     {
-        if (interactable is Arrow arrow)
-            currentArrow = arrow;
+        return interactable is Arrow && base.CanHover(interactable);
     }
 
-    private void TryToReleaseArrow(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    public override bool CanSelect(IXRSelectInteractable interactable)
     {
-        if (currentArrow)
-        {
-            ForceDeselect();
-            ReleaseArrow();
-        }
+        return interactable is Arrow && base.CanSelect(interactable);
     }
 
-    private void ForceDeselect()
+    protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
-        base.OnSelectExit(currentArrow);
-        currentArrow.OnSelectExit(this);
+        base.OnSelectEntered(args);
+        currentArrow = args.interactableObject as Arrow;
     }
 
-    private void ReleaseArrow()
+    protected override void OnSelectExited(SelectExitEventArgs args)
     {
-        currentArrow.Release(pullInteraction.PullAmount);
+        base.OnSelectExited(args);
         currentArrow = null;
     }
 
-    public override UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable.MovementType? selectedInteractableMovementTypeOverride
+    private void TryToReleaseArrow(SelectExitEventArgs args)
     {
-        get { return UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable.MovementType.Instantaneous; }
+        if (currentArrow == null)
+            return;
+
+        var arrow = currentArrow;
+        args.manager.SelectExit((IXRSelectInteractor)this, arrow);
+        if (!args.isCanceled)
+            arrow.Release(pullInteraction.PullAmount);
     }
 
     void NotchSounds(AudioClip clip, float minPitch, float maxPitch, int id)

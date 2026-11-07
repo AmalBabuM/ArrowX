@@ -263,21 +263,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 32
   m_AttachTransform: {fileID: 168141357}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_SelectActionTrigger: 1
@@ -632,21 +631,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 1024
   m_AttachTransform: {fileID: 7871233138258630139}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_SelectActionTrigger: 1
@@ -1138,21 +1136,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 1024
   m_AttachTransform: {fileID: 1482851049257466770}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_SelectActionTrigger: 1
@@ -1616,18 +1613,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 1847
   m_AttachTransform: {fileID: 285993825}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
@@ -1642,7 +1638,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
@@ -1796,14 +1792,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1837324664885972820}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7448815bd5148434682b3d931066cd10, type: 3}
+  m_Script: {fileID: 11500000, guid: e0cb9aa70a22847b5925ee5f067c10a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RigBaseGameObject: {fileID: 1837324664885972820}
-  m_CameraFloorOffsetObject: {fileID: 0}
-  m_CameraGameObject: {fileID: 1837324663941945069}
-  m_TrackingOriginMode: 2
-  m_TrackingSpace: 3
+  m_OriginBaseGameObject: {fileID: 1837324664885972820}
+  m_CameraFloorOffsetObject: {fileID: 1837324663596057045}
+  m_Camera: {fileID: 1837324663941945071}
+  m_RequestedTrackingOriginMode: 2
   m_CameraYOffset: 0
 --- !u!114 &1837324664885972817
 MonoBehaviour:
@@ -1903,21 +1898,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 1847
   m_AttachTransform: {fileID: 1028366572}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_SelectActionTrigger: 1
@@ -2211,21 +2205,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 32
   m_AttachTransform: {fileID: 6951796775408458278}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_SelectActionTrigger: 1

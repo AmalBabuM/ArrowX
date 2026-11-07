@@ -6070,22 +6070,21 @@ MonoBehaviour:
   m_InteractionManager: {fileID: 0}
   m_Colliders:
   - {fileID: 1173973588}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 3895
-  m_OnFirstHoverEnter:
+  m_FirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnLastHoverExit:
+  m_LastHoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8200200255689764020}
@@ -6100,7 +6099,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8200200255689764020}
@@ -6115,10 +6114,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_OnActivate:
+  m_Activated:
     m_PersistentCalls:
       m_Calls: []
-  m_OnDeactivate:
+  m_Deactivated:
     m_PersistentCalls:
       m_Calls: []
   m_CustomReticle: {fileID: 0}
@@ -6144,21 +6143,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 3895
   m_AttachTransform: {fileID: 0}
   m_StartingSelectedInteractable: {fileID: 0}
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
   m_ShowInteractableHoverMeshes: 1
@@ -6341,22 +6339,21 @@ MonoBehaviour:
   m_InteractionManager: {fileID: 0}
   m_Colliders:
   - {fileID: 1957413184}
-  m_InteractionLayerMask:
-    serializedVersion: 2
+  m_InteractionLayers:
     m_Bits: 3895
-  m_OnFirstHoverEnter:
+  m_FirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverEnter:
+  m_HoverEntered:
     m_PersistentCalls:
       m_Calls: []
-  m_OnHoverExit:
+  m_HoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnLastHoverExit:
+  m_LastHoverExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnSelectEnter:
+  m_SelectEntered:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5238485780753677829}
@@ -6371,13 +6368,13 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_OnSelectExit:
+  m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
-  m_OnActivate:
+  m_Activated:
     m_PersistentCalls:
       m_Calls: []
-  m_OnDeactivate:
+  m_Deactivated:
     m_PersistentCalls:
       m_Calls: []
   m_CustomReticle: {fileID: 0}

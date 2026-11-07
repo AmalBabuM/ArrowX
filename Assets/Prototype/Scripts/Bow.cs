@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class Bow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable
@@ -36,22 +36,12 @@ public class Bow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabIntera
         lineRenderer.SetPosition(1, linePosition);
     }
 
-    protected override void OnSelectEnter(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
+    public void OffsetQuiver(SelectEnterEventArgs args)
     {
-        base.OnSelectEnter(interactor);
-    }
-
-    //public void BowHaptic(XRBaseInteractor interactor)
-    //{
-    //    if (interactor.TryGetComponent(out XRController controller))
-    //        HapticManager.Impulse(1, .05f, controller.inputDevice);
-    //}
-
-    public void OffsetQuiver(UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInteractor interactor)
-    {
-        if (interactor.TryGetComponent(out XRController controller))
+        var controller = args.interactorObject.transform.GetComponentInParent<XRController>();
+        if (controller != null)
         {
-            bool right = (controller.inputDevice.role == UnityEngine.XR.InputDeviceRole.RightHanded);
+            bool right = controller.controllerNode == XRNode.RightHand;
             quiver.localPosition = new Vector3(quiverOffset.x * (right ? -1 : 1), quiverOffset.y, quiver.localPosition.z);
         }
     }

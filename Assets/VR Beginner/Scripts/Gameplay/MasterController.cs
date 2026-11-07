@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SpatialTracking;
+using Unity.XR.CoreUtils;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -14,7 +14,7 @@ public class MasterController : MonoBehaviour
     static MasterController s_Instance = null;
     public static MasterController Instance => s_Instance;
 
-    public XRRig Rig => m_Rig;
+    public XROrigin Rig => m_Rig;
 
     [Header("Setup")]
     public bool DisableSetupForDebug = false;
@@ -31,7 +31,7 @@ public class MasterController : MonoBehaviour
     public MagicTractorBeam RightTractorBeam;
     public MagicTractorBeam LeftTractorBeam;
     
-    XRRig m_Rig;
+    XROrigin m_Rig;
     
     InputDevice m_LeftInputDevice;
     InputDevice m_RightInputDevice;
@@ -51,15 +51,15 @@ public class MasterController : MonoBehaviour
     bool m_LastFrameRightEnable = false;
     bool m_LastFrameLeftEnable = false;
 
-    LayerMask m_OriginalRightMask;
-    LayerMask m_OriginalLeftMask;
+    InteractionLayerMask m_OriginalRightMask;
+    InteractionLayerMask m_OriginalLeftMask;
     
     List<UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable> m_InteractableCache = new List<UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable>(16);
 
     void Awake()
     {
         s_Instance = this;
-        m_Rig = GetComponent<XRRig>();
+        m_Rig = GetComponent<XROrigin>();
        
     }
 
@@ -84,8 +84,8 @@ public class MasterController : MonoBehaviour
         m_RightController = RightTeleportInteractor.GetComponent<XRReleaseController>();
         m_LeftController = LeftTeleportInteractor.GetComponent<XRReleaseController>();
 
-        m_OriginalRightMask = RightTeleportInteractor.interactionLayerMask;
-        m_OriginalLeftMask = LeftTeleportInteractor.interactionLayerMask;
+        m_OriginalRightMask = RightTeleportInteractor.interactionLayers;
+        m_OriginalLeftMask = LeftTeleportInteractor.interactionLayers;
         
         if (!DisableSetupForDebug)
         {
@@ -112,8 +112,8 @@ public class MasterController : MonoBehaviour
         if (foundControllers.Count > 0)
             m_RightInputDevice = foundControllers[0];
 
-        if (m_Rig.TrackingOriginMode != TrackingOriginModeFlags.Floor)
-            m_Rig.cameraYOffset = 1.8f;
+        if (m_Rig.CurrentTrackingOriginMode != TrackingOriginModeFlags.Floor)
+            m_Rig.CameraYOffset = 1.8f;
     }
 
     void RegisterDevices(InputDevice connectedDevice)
@@ -150,7 +150,7 @@ public class MasterController : MonoBehaviour
         
         m_RightLineVisual.enabled = axisInput.y > 0.5f;
         
-        RightTeleportInteractor.InteractionLayerMask = m_LastFrameRightEnable ? m_OriginalRightMask : new LayerMask();
+        RightTeleportInteractor.interactionLayers = m_LastFrameRightEnable ? m_OriginalRightMask : 0;
         
         if (axisInput.y <= 0.5f && m_PreviousRightClicked)
         {
@@ -192,7 +192,7 @@ public class MasterController : MonoBehaviour
         
         m_LeftLineVisual.enabled = axisInput.y > 0.5f;
         
-        LeftTeleportInteractor.InteractionLayerMask = m_LastFrameLeftEnable ? m_OriginalLeftMask : new LayerMask();
+        LeftTeleportInteractor.interactionLayers = m_LastFrameLeftEnable ? m_OriginalLeftMask : 0;
         
         if (axisInput.y <= 0.5f && m_PreviousLeftClicked)
         {

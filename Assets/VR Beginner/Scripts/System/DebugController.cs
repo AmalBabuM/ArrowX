@@ -20,7 +20,7 @@ public class DebugController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (XRDevice.isPresent && !Application.isEditor)
+        if (!Application.isEditor && XRSettings.isDeviceActive)
         {
             Destroy(this);
             return;

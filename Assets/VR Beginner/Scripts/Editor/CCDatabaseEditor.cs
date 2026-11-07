@@ -15,9 +15,9 @@ public class CCDatabaseEditor : EditorWindow
     Vector2 m_ScrollPosition;
 
     [OnOpenAsset(1)]
-    public static bool HandleDblClick(int instanceID, int line)
+    public static bool HandleDblClick(EntityId entityId)
     {
-        var db = EditorUtility.InstanceIDToObject(instanceID) as CCDatabase;
+        var db = EditorUtility.EntityIdToObject(entityId) as CCDatabase;
 
         if (db != null)
         {

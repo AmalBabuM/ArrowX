@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,11 +10,11 @@ public class InteractableLayerChange : MonoBehaviour
 
     public void ChangeLayerDynamic(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
     {
-        interactable.interactionLayerMask = NewLayerMask;
+        interactable.interactionLayers = NewLayerMask.value;
     }
 
     public void ChangeLayer()
     {
-        TargetInteractable.interactionLayerMask = NewLayerMask;
+        TargetInteractable.interactionLayers = NewLayerMask.value;
     }
 }

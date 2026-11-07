@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,11 +11,11 @@ public class DisableInteractable : MonoBehaviour
 {
     public void DisableInteraction(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
     {
-        interactable.interactionLayerMask &= ~(1<<LayerMask.NameToLayer("Hands"));
+        interactable.interactionLayers &= ~(1<<LayerMask.NameToLayer("Hands"));
     }
 
     public void EnableInteraction(UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable)
     {
-        interactable.interactionLayerMask |= (1<<LayerMask.NameToLayer("Hands"));
+        interactable.interactionLayers |= (1<<LayerMask.NameToLayer("Hands"));
     }
 }
