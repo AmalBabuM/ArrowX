@@ -29,6 +29,14 @@ public class Bow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabIntera
             if (isSelected)
                 UpdateBow(pullInteraction.PullAmount);
     }
+
+    protected override void OnSelectExited(SelectExitEventArgs args)
+    {
+        base.OnSelectExited(args);
+        if (!isSelected)
+            UpdateBow(0f);
+    }
+
     private void UpdateBow(float value)
     {
         Vector3 linePosition = Vector3.forward * Mathf.Lerp(-0.25f, -0.5f, value);

@@ -79,6 +79,12 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
         ArrowSounds(launchClip, 4.2f + (.6f*value), 4.4f + (.6f*value),Mathf.Max(.7f,value), -1);
     }
 
+    public void DropFromBow()
+    {
+        sphereCollider.enabled = true;
+        SetPhysics(true);
+    }
+
     private void SetPhysics(bool usePhysics)
     {
         rb.useGravity = usePhysics;

@@ -25,6 +25,12 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
         base.Awake();
         bow = GetComponentInParent<Bow>();
     }
+
+    public override bool IsSelectableBy(IXRSelectInteractor interactor)
+    {
+        return bow.isSelected && base.IsSelectableBy(interactor);
+    }
+
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
         pullingInteractor = args.interactorObject;
