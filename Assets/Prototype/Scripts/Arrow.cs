@@ -1,13 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+
 public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable
 {
+    private struct Flight
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 velocity;
+        public Vector3 tipOffset;
+        public Vector3 Tip => position + rotation * tipOffset;
+    }
+
     public float speed = 1000f;
     public Transform tip;
-    bool inAir = false;
-    Vector3 lastPosition = Vector3.zero;
+    private bool inAir;
+    private Flight flight;
+    private RaycastHit[] flightHits = new RaycastHit[8];
     private Rigidbody rb;
     public Collider sphereCollider;
 
@@ -24,37 +33,44 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
     {
         base.Awake();
         rb = GetComponent<Rigidbody>();
-
     }
+
     private void FixedUpdate()
     {
-        if (inAir)
+        if (!inAir)
+            return;
+
+        if (StepFlight(ref flight, out var hit) && ResolveImpact(hit))
         {
-            CheckCollision();
-            lastPosition = tip.position;
+            var impactPosition = flight.position + hit.point - flight.Tip;
+            rb.interpolation = RigidbodyInterpolation.None;
+            transform.SetPositionAndRotation(impactPosition, flight.rotation);
+            if (hit.rigidbody != null)
+                transform.SetParent(hit.transform);
+            Stop();
+            return;
         }
+
+        rb.Move(flight.position, flight.rotation);
     }
 
-    private void CheckCollision()
+    private bool ResolveImpact(RaycastHit hit)
     {
-        if (Physics.Linecast(lastPosition, tip.position, out RaycastHit hitInfo))
-        {
-            if(hitInfo.transform.TryGetComponent(out Rigidbody body))
-            {
-                if (body.TryGetComponent<Lantern>(out Lantern lantern))
-                    lantern.TurnOn();
+        var body = hit.rigidbody;
+        if (body == null)
+            return true;
 
-                if (body.TryGetComponent<Potion>(out Potion potion))
-                {
-                    potion.BreakPotion();
-                    return;
-                }
-                rb.interpolation = RigidbodyInterpolation.None;
-                transform.parent = hitInfo.transform;
-                body.AddForce(rb.linearVelocity, ForceMode.Impulse);
-            }
-            Stop();
+        if (body.TryGetComponent<Lantern>(out var lantern))
+            lantern.TurnOn();
+
+        if (body.TryGetComponent<Potion>(out var potion))
+        {
+            potion.BreakPotion();
+            return false;
         }
+
+        body.AddForce(flight.velocity, ForceMode.Impulse);
+        return true;
     }
     private void Stop()
     {
@@ -69,11 +85,11 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
     {
         inAir = true;
         throwOnDetach = false;
-        SetPhysics(true);
-        MaskAndFire(value);
-        StartCoroutine(RotateWithVelocity());
-
-        lastPosition = tip.position;
+        SetPhysics(false);
+        foreach (var arrowCollider in colliders)
+            arrowCollider.enabled = false;
+        interactionLayers = 0;
+        flight = BeginFlight(value);
 
         ArrowParticles(true);
         ArrowSounds(launchClip, 4.2f + (.6f*value), 4.4f + (.6f*value),Mathf.Max(.7f,value), -1);
@@ -91,22 +107,71 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
         rb.isKinematic = !usePhysics;
     }
 
-    private void MaskAndFire(float power)
+    private Flight BeginFlight(float power)
     {
-        colliders[0].enabled = false;
-        interactionLayers = 0;
-        Vector3 force = transform.forward * power * speed;
-        rb.AddForce(force, ForceMode.Impulse);
-    }
-    private IEnumerator RotateWithVelocity()
-    {
-        yield return new WaitForFixedUpdate();
-        while (inAir)
+        var rotation = transform.rotation;
+        return new Flight
         {
-            Quaternion newRotation = Quaternion.LookRotation(rb.linearVelocity, transform.up);
-            transform.rotation = newRotation;
-            yield return null;
+            position = transform.position,
+            rotation = rotation,
+            velocity = transform.forward * (power * speed / rb.mass),
+            tipOffset = Quaternion.Inverse(rotation) * (tip.position - transform.position)
+        };
+    }
+
+    internal int GetTrajectory(float power, Vector3[] points, out RaycastHit impact)
+    {
+        var prediction = BeginFlight(power);
+        points[0] = tip.position;
+        for (int i = 1; i < points.Length; i++)
+        {
+            if (StepFlight(ref prediction, out impact))
+            {
+                points[i] = impact.point;
+                return i + 1;
+            }
+            points[i] = prediction.Tip;
         }
+
+        impact = default;
+        return points.Length;
+    }
+
+    private bool StepFlight(ref Flight state, out RaycastHit impact)
+    {
+        var previousTip = state.Tip;
+        var step = Time.fixedDeltaTime;
+        var gravity = Physics.gravity;
+        state.position += (state.velocity + gravity * (step * 0.5f)) * step;
+        state.velocity += gravity * step;
+        if (state.velocity.sqrMagnitude > 0.000001f)
+            state.rotation = Quaternion.LookRotation(state.velocity, state.rotation * Vector3.up);
+
+        var segment = state.Tip - previousTip;
+        var distance = segment.magnitude;
+        impact = default;
+        if (distance <= 0f)
+            return false;
+
+        int hitCount;
+        while ((hitCount = Physics.RaycastNonAlloc(previousTip, segment / distance, flightHits, distance,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) == flightHits.Length)
+        {
+            System.Array.Resize(ref flightHits, flightHits.Length * 2);
+        }
+
+        var nearest = float.PositiveInfinity;
+        for (int i = 0; i < hitCount; i++)
+        {
+            var candidate = flightHits[i];
+            if (candidate.rigidbody != rb && candidate.distance < nearest)
+            {
+                nearest = candidate.distance;
+                impact = candidate;
+            }
+        }
+
+        return impact.collider != null;
     }
 
     public void ArrowHaptic(HoverEnterEventArgs args)

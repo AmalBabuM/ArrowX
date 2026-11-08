@@ -12,6 +12,8 @@ public class Notch : UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInte
     private PullInteraction pullInteraction;
     private Arrow currentArrow;
 
+    internal Arrow CurrentArrow => currentArrow;
+
     [Header("Sound")]
     public AudioClip attatchClip;
     protected override void Awake()

@@ -6032,6 +6032,7 @@ GameObject:
   - component: {fileID: 8200200255689764020}
   - component: {fileID: 3987727115146386596}
   - component: {fileID: 1173973588}
+  - component: {fileID: 7749968035529475563}
   m_Layer: 8
   m_Name: Notch
   m_TagString: Untagged
@@ -6178,6 +6179,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7749968035529475563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4703850111501996302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47febde48fc043b4b8ba90fd26a87028, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  trajectoryMaterial: {fileID: 2100000, guid: d1d7dbf82160469a96222275da2751f6, type: 2}
 --- !u!1 &5032578571528641939
 GameObject:
   m_ObjectHideFlags: 0

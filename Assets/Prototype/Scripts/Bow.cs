@@ -19,7 +19,7 @@ public class Bow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabIntera
     {
         base.Awake();
         pullInteraction = GetComponentInChildren<PullInteraction>();
-        lineRenderer = GetComponentInChildren<LineRenderer>();
+        lineRenderer = pullInteraction.stringLine;
     }
 
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
