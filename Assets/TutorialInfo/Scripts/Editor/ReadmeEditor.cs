@@ -42,7 +42,7 @@ public class ReadmeEditor : Editor {
 		method.Invoke(null, new object[]{Path.Combine(Application.dataPath, "TutorialInfo/Layout.wlt"), false});
 	}
 	
-	[MenuItem("Tutorial/Show Tutorial Instructions")]
+	[MenuItem("ArrowX/Show Project Guide")]
 	static Readme SelectReadme() 
 	{
 		var ids = AssetDatabase.FindAssets("Readme t:Readme");
@@ -70,7 +70,8 @@ public class ReadmeEditor : Editor {
 		
 		GUILayout.BeginHorizontal("In BigTitle");
 		{
-			GUILayout.Label(readme.icon, GUILayout.Width(iconWidth), GUILayout.Height(iconWidth));
+			if (readme.icon != null)
+				GUILayout.Label(readme.icon, GUILayout.Width(iconWidth), GUILayout.Height(iconWidth));
 			GUILayout.Label(readme.title, TitleStyle);
 		}
 		GUILayout.EndHorizontal();
