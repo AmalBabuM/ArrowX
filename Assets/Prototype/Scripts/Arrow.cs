@@ -62,10 +62,7 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
             return true;
 
         if (body.TryGetComponent<MovingTarget>(out var target))
-        {
-            target.KnockDown(this);
-            return true;
-        }
+            return target.TryKnockDown(this, hit);
 
         if (body.TryGetComponent<Lantern>(out var lantern))
             lantern.TurnOn();

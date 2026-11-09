@@ -4,73 +4,144 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public sealed class MovingTarget : MonoBehaviour
 {
-    private const float FallDuration = 0.26f;
+    private enum Pose { Down, Rising, Standing, Falling }
+
     private const float RiseDuration = 0.42f;
+    private const float FallDuration = 0.26f;
+    private const float FloorTilt = -87f;
+    internal const int BullseyePoints = 10;
 
-    [SerializeField] private Collider hitCollider;
-    [SerializeField, Min(0f)] private float travel = 0.38f;
-    [SerializeField, Min(0f)] private float cyclesPerSecond = 0.32f;
-    [SerializeField, Min(0f)] private float downTime = 2.25f;
+    [SerializeField] private MeshCollider hitCollider;
 
-    internal event Action<MovingTarget> KnockedDown;
-    internal float SpeedMultiplier { get; set; } = 1f;
+    internal event Action<int> Hit;
+    internal event Action Lowered;
 
     private Rigidbody body;
-    private Vector3 home;
     private Quaternion upright;
-    private float phase;
-    private float recoveryElapsed = -1f;
+    private Bounds faceBounds;
+    private int depthAxis;
+    private Pose pose;
+    private float elapsed;
+    private float standingTime;
+    private float uprightUntil;
+    private float fallStartTilt;
+    private float currentTilt;
     private Arrow embeddedArrow;
 
     private void Awake()
     {
         body = GetComponent<Rigidbody>();
-        home = body.position;
         upright = body.rotation;
+        faceBounds = hitCollider.sharedMesh.bounds;
+        var extents = Vector3.Scale(faceBounds.extents, hitCollider.transform.lossyScale);
+        depthAxis = Mathf.Abs(extents.x) <= Mathf.Abs(extents.y) ? 0 : 1;
+        if (Mathf.Abs(extents.z) < Mathf.Abs(extents[depthAxis]))
+            depthAxis = 2;
+
+        hitCollider.enabled = false;
     }
 
-    internal void SetPhase(float radians)
+    internal void RiseAt(Vector3 position, float window)
     {
-        phase = radians;
+        var rotation = upright * Quaternion.AngleAxis(FloorTilt, Vector3.forward);
+        transform.SetPositionAndRotation(position, rotation);
+        body.position = position;
+        body.rotation = rotation;
+        pose = Pose.Rising;
+        elapsed = 0f;
+        currentTilt = FloorTilt;
+        standingTime = window;
+        gameObject.SetActive(true);
     }
 
-    internal void KnockDown(Arrow arrow)
+    internal bool TryKnockDown(Arrow arrow, RaycastHit impact)
     {
-        if (recoveryElapsed >= 0f)
+        if (pose != Pose.Standing || Time.fixedTime >= uprightUntil || impact.collider != hitCollider)
+            return false;
+
+        int points = ScoreImpact(impact.point);
+        embeddedArrow = arrow;
+        Lower();
+        Hit?.Invoke(points);
+        return true;
+    }
+
+    internal void Lower()
+    {
+        if (pose != Pose.Rising && pose != Pose.Standing)
             return;
 
-        embeddedArrow = arrow;
         hitCollider.enabled = false;
-        recoveryElapsed = 0f;
-        KnockedDown?.Invoke(this);
+        pose = Pose.Falling;
+        elapsed = 0f;
+        fallStartTilt = currentTilt;
     }
 
     private void FixedUpdate()
     {
-        float tilt = 0f;
-        if (recoveryElapsed < 0f)
+        elapsed += Time.fixedDeltaTime;
+        switch (pose)
         {
-            phase += Time.fixedDeltaTime * cyclesPerSecond * SpeedMultiplier * 2f * Mathf.PI;
+            case Pose.Rising:
+                if (elapsed < RiseDuration)
+                {
+                    MoveToTilt(Mathf.SmoothStep(FloorTilt, 0f, elapsed / RiseDuration));
+                }
+                else
+                {
+                    MoveToTilt(0f);
+                    uprightUntil = Time.fixedTime + standingTime;
+                    pose = Pose.Standing;
+                    hitCollider.enabled = true;
+                }
+                break;
+            case Pose.Standing:
+                if (Time.fixedTime >= uprightUntil)
+                    Lower();
+                break;
+            case Pose.Falling:
+                float t = Mathf.Clamp01(elapsed / FallDuration);
+                MoveToTilt(Mathf.Lerp(fallStartTilt, FloorTilt, t * t));
+                if (t >= 1f)
+                {
+                    gameObject.SetActive(false);
+                    Lowered?.Invoke();
+                }
+                break;
         }
-        else
+    }
+
+    private void MoveToTilt(float tilt)
+    {
+        currentTilt = tilt;
+        body.MoveRotation(upright * Quaternion.AngleAxis(tilt, Vector3.forward));
+    }
+
+    private int ScoreImpact(Vector3 point)
+    {
+        var offset = hitCollider.transform.InverseTransformPoint(point) - faceBounds.center;
+        offset[depthAxis] = 0f;
+        var extents = faceBounds.extents;
+        extents[depthAxis] = 1f;
+        var normalized = new Vector3(offset.x / extents.x, offset.y / extents.y, offset.z / extents.z);
+        // The cutoffs follow the rings printed on the target face.
+        return normalized.magnitude switch
         {
-            recoveryElapsed += Time.fixedDeltaTime;
-            float fall = Mathf.Clamp01(recoveryElapsed / FallDuration);
-            float rise = Mathf.Clamp01((recoveryElapsed - FallDuration - downTime) / RiseDuration);
-            tilt = -87f * fall * fall * (1f - Mathf.SmoothStep(0f, 1f, rise));
+            <= 0.105f => BullseyePoints,
+            <= 0.25f => 9,
+            <= 0.41f => 8,
+            <= 0.6f => 7,
+            <= 0.82f => 6,
+            _ => 5
+        };
+    }
 
-            if (rise >= 1f)
-            {
-                if (embeddedArrow != null)
-                    Destroy(embeddedArrow.gameObject);
-
-                embeddedArrow = null;
-                recoveryElapsed = -1f;
-                hitCollider.enabled = true;
-            }
-        }
-
-        var offset = Vector3.forward * (Mathf.Sin(phase) * travel);
-        body.Move(home + offset, upright * Quaternion.AngleAxis(tilt, Vector3.forward));
+    private void OnDisable()
+    {
+        pose = Pose.Down;
+        hitCollider.enabled = false;
+        if (embeddedArrow != null)
+            Destroy(embeddedArrow.gameObject);
+        embeddedArrow = null;
     }
 }

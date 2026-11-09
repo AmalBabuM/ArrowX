@@ -9498,7 +9498,7 @@ GameObject:
   - component: {fileID: 2103000000}
   - component: {fileID: 2103000001}
   m_Layer: 0
-  m_Name: Challenge Target (Center)
+  m_Name: Pop-up Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10407,10 +10407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0af2b9ac47cf498292422df4a57a8a97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitCollider: {fileID: 0}
-  travel: 0.38
-  cyclesPerSecond: 0.32
-  downTime: 2.25
+  hitCollider: {fileID: 1533814107}
 --- !u!1 &2103000002
 GameObject:
   m_ObjectHideFlags: 0
@@ -10455,9 +10452,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b62ab550af43425e967130acb1a84a90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  centerTarget: {fileID: 2103000001}
-  leftOffset: {x: 0.75, y: 0, z: -1.45}
-  rightOffset: {x: 0.45, y: 0, z: 1.45}
+  popUpTarget: {fileID: 2103000001}
+  spawnOffsets:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0.9, y: 0, z: -1.65}
+  - {x: 0.65, y: 0, z: 1.65}
+  - {x: 1.55, y: 0, z: -0.48}
+  - {x: -0.5, y: 0, z: 0.7}
+  - {x: -0.25, y: 0, z: -0.98}
 --- !u!1 &2103000005
 GameObject:
   m_ObjectHideFlags: 0

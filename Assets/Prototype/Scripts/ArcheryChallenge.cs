@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,67 +5,71 @@ public sealed class ArcheryChallenge : MonoBehaviour
 {
     private enum RoundState { Ready, Running, Cleared, TimedOut, Finished }
 
-    private static readonly (string Name, int Seconds, float Speed)[] Stages =
+    private static readonly (string Name, int Seconds, float HitWindow)[] Stages =
     {
-        ("Warm-up", 25, 1f),
-        ("Crosswind", 20, 1.45f),
-        ("Quick draw", 15, 1.9f)
+        ("Warm-up", 25, 3f),
+        ("Snap shot", 20, 2.5f),
+        ("Quick draw", 15, 2f)
     };
 
-    private static readonly string[] LaneNames = { "LEFT", "CENTER", "RIGHT" };
-    private const int PointsPerTarget = 100;
+    private const int HitsPerRound = 4;
+    private const float SpawnPause = 0.65f;
 
-    [SerializeField] private MovingTarget centerTarget;
-    [SerializeField] private Vector3 leftOffset = new Vector3(0.75f, 0f, -1.45f);
-    [SerializeField] private Vector3 rightOffset = new Vector3(0.45f, 0f, 1.45f);
+    [SerializeField] private MovingTarget popUpTarget;
+    [SerializeField] private Vector3[] spawnOffsets;
 
-    private readonly HashSet<MovingTarget> cleared = new HashSet<MovingTarget>();
-    private MovingTarget[] targets;
+    private Vector3 targetOrigin;
+    private int previousSpot = -1;
     private RoundState state;
     private int stage;
+    private int hits;
+    private int roundScore;
     private int bankedScore;
     private int displayedSeconds;
     private float deadline;
     private float nextRoundAt;
+    private float nextAppearanceAt;
     private Text title;
     private Text counters;
-    private Text lanes;
+    private Text feedback;
     private Text instructions;
 
-    private int Score => bankedScore + cleared.Count * PointsPerTarget;
+    private int Score => bankedScore + roundScore;
+    private bool InRound => state == RoundState.Ready || state == RoundState.Running;
 
     private void Start()
     {
-        targets = new[]
-        {
-            SpawnTarget("Challenge Target (Left)", leftOffset, 1.8f),
-            centerTarget,
-            SpawnTarget("Challenge Target (Right)", rightOffset, 3.6f)
-        };
-
-        foreach (var target in targets)
-            target.KnockedDown += RecordHit;
+        targetOrigin = popUpTarget.transform.position;
+        popUpTarget.Hit += RecordHit;
+        popUpTarget.Lowered += ScheduleNextTarget;
+        popUpTarget.gameObject.SetActive(false);
 
         BuildScoreboard();
         PrepareRound();
     }
 
-    private MovingTarget SpawnTarget(string targetName, Vector3 offset, float phase)
+    private void RaiseTarget()
     {
-        var source = centerTarget.transform;
-        var target = Instantiate(centerTarget, source.position + offset, source.rotation, source.parent);
-        target.name = targetName;
-        target.SetPhase(phase);
-        return target;
+        int spot = Random.Range(0, spawnOffsets.Length);
+        if (spot == previousSpot && spawnOffsets.Length > 1)
+            spot = (spot + Random.Range(1, spawnOffsets.Length)) % spawnOffsets.Length;
+
+        previousSpot = spot;
+        popUpTarget.RiseAt(targetOrigin + spawnOffsets[spot], Stages[stage].HitWindow);
+    }
+
+    private void ScheduleNextTarget()
+    {
+        nextAppearanceAt = Time.time + SpawnPause;
     }
 
     private void OnDestroy()
     {
-        if (targets == null)
+        if (popUpTarget == null)
             return;
 
-        foreach (var target in targets)
-            target.KnockedDown -= RecordHit;
+        popUpTarget.Hit -= RecordHit;
+        popUpTarget.Lowered -= ScheduleNextTarget;
     }
 
     private void Update()
@@ -94,24 +97,27 @@ public sealed class ArcheryChallenge : MonoBehaviour
 
             PrepareRound();
         }
+
+        if (InRound && !popUpTarget.gameObject.activeSelf && Time.time >= nextAppearanceAt)
+            RaiseTarget();
     }
 
     private void PrepareRound()
     {
-        cleared.Clear();
+        hits = 0;
+        roundScore = 0;
         state = RoundState.Ready;
-        foreach (var target in targets)
-            target.SpeedMultiplier = Stages[stage].Speed;
-
+        nextAppearanceAt = Time.time + 1f;
+        feedback.text = "Watch for the next target";
         RefreshScoreboard();
     }
 
-    private void RecordHit(MovingTarget target)
+    private void RecordHit(int points)
     {
         if (state == RoundState.Running && Time.time >= deadline)
             EndRound(RoundState.TimedOut);
 
-        if ((state != RoundState.Ready && state != RoundState.Running) || !cleared.Add(target))
+        if (!InRound)
             return;
 
         if (state == RoundState.Ready)
@@ -120,7 +126,11 @@ public sealed class ArcheryChallenge : MonoBehaviour
             deadline = Time.time + Stages[stage].Seconds;
         }
 
-        if (cleared.Count == targets.Length)
+        hits++;
+        roundScore += points;
+        feedback.text = points == MovingTarget.BullseyePoints ? $"BULLSEYE  +{points}" : $"LAST HIT  +{points}";
+
+        if (hits >= HitsPerRound)
             EndRound(stage == Stages.Length - 1 ? RoundState.Finished : RoundState.Cleared);
         else
             RefreshScoreboard();
@@ -130,21 +140,17 @@ public sealed class ArcheryChallenge : MonoBehaviour
     {
         state = result;
         nextRoundAt = Time.time + (result == RoundState.Finished ? 6f : 4f);
+        popUpTarget.Lower();
         RefreshScoreboard();
     }
 
     private void RefreshScoreboard()
     {
         title.text = $"ROUND {stage + 1}/{Stages.Length}  |  {Stages[stage].Name.ToUpperInvariant()}";
-        var markers = new string[targets.Length];
-        for (int i = 0; i < targets.Length; i++)
-            markers[i] = cleared.Contains(targets[i]) ? $"<color=#79E9AC>{LaneNames[i]} OK</color>" : LaneNames[i];
-        lanes.text = string.Join("    /    ", markers);
-
         instructions.text = state switch
         {
-            RoundState.Ready => "Hit a target to start the timer",
-            RoundState.Running => "Knock down each lane once",
+            RoundState.Ready => "Hit an upright target to start",
+            RoundState.Running => "Shoot before the target drops",
             RoundState.Cleared => "Round cleared. Next round in 4s.",
             RoundState.TimedOut => "Time's up. Retrying in 4s.",
             _ => "Challenge complete. New run in 6s."
@@ -159,7 +165,7 @@ public sealed class ArcheryChallenge : MonoBehaviour
     private void RefreshCounters(int seconds)
     {
         displayedSeconds = seconds;
-        counters.text = $"TARGETS {targets.Length - cleared.Count}    SCORE {Score}    TIME {seconds:00}s";
+        counters.text = $"HITS {hits}/{HitsPerRound}    SCORE {Score}    TIME {seconds:00}s";
     }
 
     private void BuildScoreboard()
@@ -177,7 +183,7 @@ public sealed class ArcheryChallenge : MonoBehaviour
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         title = AddLine(rect, font, "Round", 57f, 27, new Color(1f, 0.8f, 0.45f));
         counters = AddLine(rect, font, "Counters", 18f, 23, Color.white);
-        lanes = AddLine(rect, font, "Lanes", -18f, 22, Color.white);
+        feedback = AddLine(rect, font, "Hit Feedback", -18f, 22, new Color(0.48f, 0.91f, 0.67f));
         instructions = AddLine(rect, font, "Instructions", -54f, 22, new Color(0.78f, 0.86f, 0.95f));
     }
 
