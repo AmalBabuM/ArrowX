@@ -3906,7 +3906,7 @@ GameObject:
   m_Component:
   - component: {fileID: 754256838}
   m_Layer: 0
-  m_Name: Lanterns
+  m_Name: Targets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9849,7 +9849,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2014304487}
   m_Layer: 0
-  m_Name: Targets
+  m_Name: Target 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10500,7 +10500,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c9ca7501a91c9bd41ab1618a4ba6abbd, type: 3}
       propertyPath: m_Name
-      value: "\u041C\u0418\u0428\u0415\u041D\u042C"
+      value: Target 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
