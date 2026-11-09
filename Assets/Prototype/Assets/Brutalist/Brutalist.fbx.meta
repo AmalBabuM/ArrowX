@@ -12,13 +12,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: concrete_pavement
-    second: {fileID: 2100000, guid: 5e703e6580004463b9d7311180d67c28, type: 2}
+      name: Material_001
+    second: {fileID: 2100000, guid: e7d7377459b345e78e79be48d077f9f9, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material_001
-    second: {fileID: 2100000, guid: e7d7377459b345e78e79be48d077f9f9, type: 2}
+      name: concrete_pavement
+    second: {fileID: 2100000, guid: 5e703e6580004463b9d7311180d67c28, type: 2}
   materials:
     materialImportMode: 1
     materialName: 1
@@ -64,7 +64,7 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
