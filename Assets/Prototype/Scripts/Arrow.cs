@@ -40,13 +40,13 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
         if (!inAir)
             return;
 
-        if (StepFlight(ref flight, out var hit) && ResolveImpact(hit))
+        if (StepFlight(ref flight, out var hit) && ResolveImpact(hit, out var attachment))
         {
             var impactPosition = flight.position + hit.point - flight.Tip;
             rb.interpolation = RigidbodyInterpolation.None;
             transform.SetPositionAndRotation(impactPosition, flight.rotation);
-            if (hit.rigidbody != null)
-                transform.SetParent(hit.transform);
+            if (attachment != null)
+                transform.SetParent(attachment);
             Stop();
             return;
         }
@@ -54,11 +54,18 @@ public class Arrow : UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInte
         rb.Move(flight.position, flight.rotation);
     }
 
-    private bool ResolveImpact(RaycastHit hit)
+    private bool ResolveImpact(RaycastHit hit, out Transform attachment)
     {
         var body = hit.rigidbody;
+        attachment = body != null ? hit.transform : null;
         if (body == null)
             return true;
+
+        if (body.TryGetComponent<MovingTarget>(out var target))
+        {
+            target.KnockDown(this);
+            return true;
+        }
 
         if (body.TryGetComponent<Lantern>(out var lantern))
             lantern.TurnOn();
