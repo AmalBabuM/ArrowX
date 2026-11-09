@@ -7,6 +7,8 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable
 {
+    private const float PullHandRevealPadding = 0.04f;
+
     private Bow bow;
     public float PullAmount { get; private set; } = 0.0f;
     public Transform start, end;
@@ -19,11 +21,20 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
     public ParticleSystem lineParticle;
     public bool showHandsOnPull = true;
     public GameObject rightHand, leftHand;
+    [SerializeField, Min(0f)] private float hidePullHandDistance = 0.20f;
+
+    private Renderer[] rightHandRenderers, leftHandRenderers;
+    private GameObject pullHand;
+    private Renderer[] pullHandRenderers;
+    private Camera headsetCamera;
+    private bool pullHandHidden;
 
     protected override void Awake()
     {
         base.Awake();
         bow = GetComponentInParent<Bow>();
+        rightHandRenderers = rightHand?.GetComponentsInChildren<Renderer>(true);
+        leftHandRenderers = leftHand?.GetComponentsInChildren<Renderer>(true);
     }
 
     public override bool IsSelectableBy(IXRSelectInteractor interactor)
@@ -43,6 +54,7 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
         base.OnSelectExited(args);
         pullingInteractor = null;
         PullAmount = 0f;
+        ShowHand(false);
 
         //polish
         stringLine.material.SetColor("_EmissionColor", stringNormalCol);
@@ -81,24 +93,60 @@ public class PullInteraction : UnityEngine.XR.Interaction.Toolkit.Interactables.
 
     public void ShowHand(bool show)
     {
-        if (show)
+        if (pullHand != null)
         {
-            var controller = bow.firstInteractorSelecting?.transform.GetComponentInParent<XRController>();
-            if (showHandsOnPull && controller != null)
-            {
-                leftHand.SetActive(controller.controllerNode == XRNode.RightHand);
-                rightHand.SetActive(controller.controllerNode == XRNode.LeftHand);
-            }
+            SetPullHandHidden(false);
+            pullHand.SetActive(false);
+            pullHand = null;
+            pullHandRenderers = null;
         }
-        else
+
+        if (!show || !showHandsOnPull)
+            return;
+
+        var bowController = bow.firstInteractorSelecting?.transform.GetComponentInParent<XRController>();
+        pullHand = bowController?.controllerNode switch
         {
-            if (showHandsOnPull)
-            {
-                leftHand.SetActive(false);
-                rightHand.SetActive(false);
-            }
-        }
+            XRNode.RightHand => leftHand,
+            XRNode.LeftHand => rightHand,
+            _ => null
+        };
+        if (pullHand == null)
+            return;
+
+        pullHandRenderers = pullHand == rightHand ? rightHandRenderers : leftHandRenderers;
+        headsetCamera = Camera.main;
+        pullHand.SetActive(true);
+        UpdatePullHandVisibility();
     }
 
+    private void LateUpdate()
+    {
+        if (pullHand != null)
+            UpdatePullHandVisibility();
+    }
 
+    private void UpdatePullHandVisibility()
+    {
+        float distance = hidePullHandDistance + (pullHandHidden ? PullHandRevealPadding : 0f);
+        bool hide = hidePullHandDistance > 0f && headsetCamera != null &&
+            (headsetCamera.transform.position - pullHand.transform.position).sqrMagnitude < distance * distance;
+        SetPullHandHidden(hide);
+    }
+
+    private void SetPullHandHidden(bool hide)
+    {
+        if (pullHandHidden == hide)
+            return;
+
+        pullHandHidden = hide;
+        foreach (var handRenderer in pullHandRenderers)
+            handRenderer.forceRenderingOff = hide;
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        ShowHand(false);
+    }
 }
