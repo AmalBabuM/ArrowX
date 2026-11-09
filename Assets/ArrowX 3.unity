@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 0.76
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 508785c2af3499b4790effb0803f30eb, type: 2}
@@ -35,7 +35,7 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 1
+  m_ReflectionIntensity: 0.7
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 1452111434}
   m_UseRadianceAmbientProbe: 0
@@ -2403,7 +2403,7 @@ Light:
   serializedVersion: 13
   m_Type: 3
   m_Color: {r: 0.990566, g: 0.9895415, b: 0.80833924, a: 1}
-  m_Intensity: 1.6
+  m_Intensity: 2
   m_Range: 24.96
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -5884,7 +5884,7 @@ Light:
   serializedVersion: 13
   m_Type: 3
   m_Color: {r: 0.990566, g: 0.9895415, b: 0.80833924, a: 1}
-  m_Intensity: 15
+  m_Intensity: 7
   m_Range: 17
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -6940,8 +6940,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
-  m_Color: {r: 0.9948749, g: 1, b: 0.8443396, a: 1}
-  m_Intensity: 3
+  m_Color: {r: 1, g: 0.957, b: 0.898, a: 1}
+  m_Intensity: 0.85
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -8065,6 +8065,10 @@ PrefabInstance:
     - target: {fileID: 3851804982403677659, guid: 5fa864de25827b544953ce2df30cf220, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3851804982403677659, guid: 5fa864de25827b544953ce2df30cf220, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5826847311265101840, guid: 5fa864de25827b544953ce2df30cf220, type: 3}
       propertyPath: m_IsActive
@@ -9674,6 +9678,10 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3851804982403677659, guid: 5fa864de25827b544953ce2df30cf220, type: 3}
+      propertyPath: m_Shadows.m_Type
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5826847311265101840, guid: 5fa864de25827b544953ce2df30cf220, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -9923,11 +9931,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1837324663941945065, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
       propertyPath: m_RenderPostProcessing
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1837324663941945069, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
       propertyPath: m_TagString
       value: MainCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 1837324663941945071, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
+      propertyPath: far clip plane
+      value: 65
       objectReference: {fileID: 0}
     - target: {fileID: 1837324663941945071, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
       propertyPath: m_CullingMask.m_Bits
@@ -9952,6 +9964,10 @@ PrefabInstance:
     - target: {fileID: 1837324663945620828, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
       propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: StopTracting
+      objectReference: {fileID: 0}
+    - target: {fileID: 1837324664885972817, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
+      propertyPath: showTeleportAim
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1837324664885972817, guid: d45e8a6999317d2428a51593da44d3ab, type: 3}
       propertyPath: StartingPosition
@@ -10441,13 +10457,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2103000002}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.833886, z: 0, w: 0.551937}
-  m_LocalPosition: {x: -2.45, y: 1.98, z: -1.04}
+  m_LocalRotation: {x: 0, y: -0.8709369, z: 0, w: 0.4913948}
+  m_LocalPosition: {x: -2.45, y: 2.24, z: -1.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -113, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -121.1, z: 0}
 --- !u!114 &2103000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10468,6 +10484,7 @@ MonoBehaviour:
   - {x: 1.55, y: 0, z: -0.48}
   - {x: -0.5, y: 0, z: 0.7}
   - {x: -0.25, y: 0, z: -0.98}
+  roundedPanel: {fileID: 21300000, guid: d98d1b48b3aa491a95eaaf0a227b624b, type: 3}
 --- !u!1 &2103000005
 GameObject:
   m_ObjectHideFlags: 0
@@ -10640,13 +10657,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3496617086418726298, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3987727115146386596, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
       propertyPath: m_InteractionManager
       value: 
       objectReference: {fileID: 382780288}
     - target: {fileID: 4242816076233520327, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
       propertyPath: m_CastShadows
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5238485780753677828, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
       propertyPath: m_Name
@@ -10820,9 +10841,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7336448080054644092, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7346660605103024330, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8200200255689764020, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
       propertyPath: showHandsOnPull
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8200200255689764020, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
+      propertyPath: stringPulledCol.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8200200255689764020, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
+      propertyPath: stringPulledCol.g
+      value: 0.20569722
+      objectReference: {fileID: 0}
+    - target: {fileID: 8200200255689764020, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
+      propertyPath: stringPulledCol.r
+      value: 2.974704
       objectReference: {fileID: 0}
     - target: {fileID: 8200200255689764020, guid: 096dbac3cfb9a9549addc3df23caef2b, type: 3}
       propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.data[0].m_Mode

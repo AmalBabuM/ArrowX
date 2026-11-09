@@ -14,9 +14,13 @@ public sealed class ArcheryChallenge : MonoBehaviour
 
     private const int HitsPerRound = 4;
     private const float SpawnPause = 0.65f;
+    private static readonly Color32 Ink = new Color32(232, 240, 245, 255);
+    private static readonly Color32 Muted = new Color32(166, 189, 204, 255);
+    private static readonly Color32 Gold = new Color32(255, 207, 129, 255);
 
     [SerializeField] private MovingTarget popUpTarget;
     [SerializeField] private Vector3[] spawnOffsets;
+    [SerializeField] private Sprite roundedPanel;
 
     private Vector3 targetOrigin;
     private int previousSpot = -1;
@@ -30,7 +34,9 @@ public sealed class ArcheryChallenge : MonoBehaviour
     private float nextRoundAt;
     private float nextAppearanceAt;
     private Text title;
-    private Text counters;
+    private Text hitsValue;
+    private Text scoreValue;
+    private Text timerValue;
     private Text feedback;
     private Text instructions;
 
@@ -80,7 +86,7 @@ public sealed class ArcheryChallenge : MonoBehaviour
             if (seconds == 0)
                 EndRound(RoundState.TimedOut);
             else if (seconds != displayedSeconds)
-                RefreshCounters(seconds);
+                RefreshTimer(seconds);
         }
         else if (state != RoundState.Ready && Time.time >= nextRoundAt)
         {
@@ -146,7 +152,9 @@ public sealed class ArcheryChallenge : MonoBehaviour
 
     private void RefreshScoreboard()
     {
-        title.text = $"ROUND {stage + 1}/{Stages.Length}  |  {Stages[stage].Name.ToUpperInvariant()}";
+        title.text = $"ROUND {stage + 1}/{Stages.Length}   {Stages[stage].Name.ToUpperInvariant()}";
+        hitsValue.text = $"{hits} / {HitsPerRound}";
+        scoreValue.text = Score.ToString("00");
         instructions.text = state switch
         {
             RoundState.Ready => "Hit an upright target to start",
@@ -159,13 +167,14 @@ public sealed class ArcheryChallenge : MonoBehaviour
         int seconds = state == RoundState.Ready
             ? Stages[stage].Seconds
             : Mathf.Max(0, Mathf.CeilToInt(deadline - Time.time));
-        RefreshCounters(seconds);
+        RefreshTimer(seconds);
     }
 
-    private void RefreshCounters(int seconds)
+    private void RefreshTimer(int seconds)
     {
         displayedSeconds = seconds;
-        counters.text = $"HITS {hits}/{HitsPerRound}    SCORE {Score}    TIME {seconds:00}s";
+        timerValue.text = $"00:{seconds:00}";
+        timerValue.color = state == RoundState.Running && seconds <= 5 ? Gold : Ink;
     }
 
     private void BuildScoreboard()
@@ -173,35 +182,69 @@ public sealed class ArcheryChallenge : MonoBehaviour
         var panel = new GameObject("Challenge Scoreboard", typeof(RectTransform), typeof(Canvas), typeof(Image));
         var rect = (RectTransform)panel.transform;
         rect.SetParent(transform, false);
-        rect.localScale = Vector3.one * 0.002f;
-        rect.sizeDelta = new Vector2(490f, 168f);
+        rect.localScale = Vector3.one * 0.0024f;
+        rect.sizeDelta = new Vector2(500f, 218f);
         panel.GetComponent<Canvas>().renderMode = RenderMode.WorldSpace;
-        var background = panel.GetComponent<Image>();
-        background.color = new Color(0.035f, 0.055f, 0.08f, 0.94f);
-        background.raycastTarget = false;
+        StylePanel(panel.GetComponent<Image>(), 23f, new Color32(74, 91, 104, 247));
+        AddPanel(rect, "Background", new Rect(-248f, -107f, 496f, 214f), 21f, new Color32(16, 24, 33, 255));
+        var scoreCard = AddPanel(rect, "Score Card", new Rect(81f, -36f, 147f, 117f), 16f, new Color32(51, 42, 30, 255));
+        AddPanel(rect, "Divider", new Rect(-222f, -50f, 450f, 1.5f), 0f, new Color32(74, 91, 104, 255));
 
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        title = AddLine(rect, font, "Round", 57f, 27, new Color(1f, 0.8f, 0.45f));
-        counters = AddLine(rect, font, "Counters", 18f, 23, Color.white);
-        feedback = AddLine(rect, font, "Hit Feedback", -18f, 22, new Color(0.48f, 0.91f, 0.67f));
-        instructions = AddLine(rect, font, "Instructions", -54f, 22, new Color(0.78f, 0.86f, 0.95f));
+        AddLabel(rect, font, "ARROWX  /  TARGET RANGE", new Rect(-222f, 68f, 288f, 22f), 15, Muted);
+        title = AddLabel(rect, font, "Round", new Rect(-222f, 31f, 290f, 34f), 23, Ink);
+        AddLabel(rect, font, "HITS", new Rect(-222f, 1f, 116f, 18f), 15, Muted);
+        hitsValue = AddLabel(rect, font, "Hit Count", new Rect(-222f, -34f, 116f, 34f), 29, Ink);
+        AddLabel(rect, font, "TIME LEFT", new Rect(-90f, 1f, 150f, 18f), 15, Muted);
+        timerValue = AddLabel(rect, font, "Timer", new Rect(-90f, -34f, 150f, 34f), 29, Ink);
+        AddLabel(scoreCard, font, "TOTAL SCORE", new Rect(-73.5f, 21f, 147f, 24f), 15, Gold, TextAnchor.MiddleCenter);
+        scoreValue = AddLabel(scoreCard, font, "Score", new Rect(-73.5f, -40f, 147f, 62f), 48, Gold, TextAnchor.MiddleCenter);
+        feedback = AddLabel(rect, font, "Hit Feedback", new Rect(-222f, -78f, 450f, 24f), 20, Gold);
+        instructions = AddLabel(rect, font, "Instructions", new Rect(-222f, -101f, 450f, 21f), 16, Muted);
     }
 
-    private static Text AddLine(RectTransform parent, Font font, string label, float y, int size, Color color)
+    private RectTransform AddPanel(RectTransform parent, string name, Rect bounds, float radius, Color color)
     {
-        var line = new GameObject(label, typeof(RectTransform), typeof(Text));
-        var rect = (RectTransform)line.transform;
-        rect.SetParent(parent, false);
-        rect.anchoredPosition = new Vector2(0f, y);
-        rect.sizeDelta = new Vector2(470f, 36f);
+        var item = new GameObject(name, typeof(RectTransform), typeof(Image));
+        var rect = (RectTransform)item.transform;
+        Place(rect, parent, bounds);
+        StylePanel(item.GetComponent<Image>(), radius, color);
+        return rect;
+    }
 
-        var text = line.GetComponent<Text>();
+    private void StylePanel(Image image, float radius, Color color)
+    {
+        if (radius > 0f && roundedPanel != null)
+        {
+            image.sprite = roundedPanel;
+            image.type = Image.Type.Sliced;
+            image.pixelsPerUnitMultiplier = roundedPanel.border.x / radius;
+        }
+
+        image.color = color;
+        image.raycastTarget = false;
+    }
+
+    private static Text AddLabel(RectTransform parent, Font font, string label, Rect bounds,
+        int size, Color color, TextAnchor alignment = TextAnchor.MiddleLeft)
+    {
+        var item = new GameObject(label, typeof(RectTransform), typeof(Text));
+        Place((RectTransform)item.transform, parent, bounds);
+        var text = item.GetComponent<Text>();
+        text.text = label;
         text.font = font;
         text.fontSize = size;
         text.fontStyle = FontStyle.Bold;
-        text.alignment = TextAnchor.MiddleCenter;
+        text.alignment = alignment;
         text.color = color;
         text.raycastTarget = false;
         return text;
+    }
+
+    private static void Place(RectTransform item, RectTransform parent, Rect bounds)
+    {
+        item.SetParent(parent, false);
+        item.anchoredPosition = bounds.center;
+        item.sizeDelta = bounds.size;
     }
 }

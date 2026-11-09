@@ -20,6 +20,7 @@ public class MasterController : MonoBehaviour
     public bool DisableSetupForDebug = false;
     public Transform StartingPosition;
     public GameObject TeleporterParent;
+    [SerializeField] private bool showTeleportAim = true;
     
     [Header("Reference")]
     public UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor RightTeleportInteractor;
@@ -148,7 +149,8 @@ public class MasterController : MonoBehaviour
         Vector2 axisInput;
         m_RightInputDevice.TryGetFeatureValue(CommonUsages.primary2DAxis, out axisInput);
         
-        m_RightLineVisual.enabled = axisInput.y > 0.5f;
+        bool aiming = axisInput.y > 0.5f;
+        m_RightLineVisual.enabled = showTeleportAim && aiming;
         
         RightTeleportInteractor.interactionLayers = m_LastFrameRightEnable ? m_OriginalRightMask : 0;
         
@@ -175,14 +177,14 @@ public class MasterController : MonoBehaviour
             m_RightHandPrefab = RightDirectInteractor.GetComponentInChildren<HandPrefab>();
         }
 
-        m_PreviousRightClicked = axisInput.y > 0.5f;
+        m_PreviousRightClicked = aiming;
 
         if (m_RightHandPrefab != null)
         {
             m_RightHandPrefab.Animator.SetBool("Pointing", m_PreviousRightClicked);
         }
 
-        m_LastFrameRightEnable = m_RightLineVisual.enabled;
+        m_LastFrameRightEnable = aiming;
     }
 
     void LeftTeleportUpdate()
@@ -190,7 +192,8 @@ public class MasterController : MonoBehaviour
         Vector2 axisInput;
         m_LeftInputDevice.TryGetFeatureValue(CommonUsages.primary2DAxis, out axisInput);
         
-        m_LeftLineVisual.enabled = axisInput.y > 0.5f;
+        bool aiming = axisInput.y > 0.5f;
+        m_LeftLineVisual.enabled = showTeleportAim && aiming;
         
         LeftTeleportInteractor.interactionLayers = m_LastFrameLeftEnable ? m_OriginalLeftMask : 0;
         
@@ -216,11 +219,11 @@ public class MasterController : MonoBehaviour
             m_LeftHandPrefab = LeftDirectInteractor.GetComponentInChildren<HandPrefab>();
         }
 
-        m_PreviousLeftClicked = axisInput.y > 0.5f;
+        m_PreviousLeftClicked = aiming;
         
         if (m_LeftHandPrefab != null)
             m_LeftHandPrefab.Animator.SetBool("Pointing", m_PreviousLeftClicked);
         
-        m_LastFrameLeftEnable = m_LeftLineVisual.enabled;
+        m_LastFrameLeftEnable = aiming;
     }
 }
